@@ -1,0 +1,156 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Statusnilai extends CI_Controller
+{
+    function __construct()
+    {
+        parent::__construct();
+
+        $this->load->model('Statusnilai_model');
+        $this->load->library('form_validation');
+
+        if(!$this->session->userdata('logined') || $this->session->userdata('logined') != true)
+        {
+            redirect('/');
+        }        
+	$this->load->library('datatables');
+    }
+
+    public function index()
+    {
+        $this->load->view('statusnilai/statusnilai_list');
+    } 
+    
+    public function json() {
+        header('Content-Type: application/json');
+        echo $this->Statusnilai_model->json();
+    }
+
+    public function read($id) 
+    {
+        $row = $this->Statusnilai_model->get_by_id($id);
+        if ($row) {
+            $data = array(
+		'id_statusnilai' => $row->id_statusnilai,
+		'jenis_lelang' => $row->jenis_lelang,
+		'estimasi' => $row->estimasi,
+		'tkdn' => $row->tkdn,
+		'spesifikasi' => $row->spesifikasi,
+	    );
+            $this->load->view('statusnilai/statusnilai_read', $data);
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('statusnilai'));
+        }
+    }
+
+    public function create() 
+    {
+        $data = array(
+            'button' => 'Create',
+            'action' => site_url('statusnilai/create_action'),
+	    'id_statusnilai' => set_value('id_statusnilai'),
+	    'jenis_lelang' => set_value('jenis_lelang'),
+	    'estimasi' => set_value('estimasi'),
+	    'tkdn' => set_value('tkdn'),
+	    'spesifikasi' => set_value('spesifikasi'),
+	);
+        $this->load->view('statusnilai/statusnilai_form', $data);
+    }
+    
+    public function create_action() 
+    {
+        $this->_rules();
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->create();
+        } else {
+            $data = array(
+		'jenis_lelang' => $this->input->post('jenis_lelang',TRUE),
+		'estimasi' => $this->input->post('estimasi',TRUE),
+		'tkdn' => $this->input->post('tkdn',TRUE),
+		'spesifikasi' => $this->input->post('spesifikasi',TRUE),
+	    );
+
+            $this->Statusnilai_model->insert($data);
+            $this->session->set_flashdata('message', 'Create Record Success');
+            redirect(site_url('statusnilai'));
+        }
+    }
+    
+    public function update($id) 
+    {
+        $row = $this->Statusnilai_model->get_by_id($id);
+
+        if ($row) {
+            $data = array(
+                'button' => 'Update',
+                'action' => site_url('statusnilai/update_action'),
+		'id_statusnilai' => set_value('id_statusnilai', $row->id_statusnilai),
+		'jenis_lelang' => set_value('jenis_lelang', $row->jenis_lelang),
+		'estimasi' => set_value('estimasi', $row->estimasi),
+		'tkdn' => set_value('tkdn', $row->tkdn),
+		'spesifikasi' => set_value('spesifikasi', $row->spesifikasi),
+	    );
+            $this->load->view('statusnilai/statusnilai_form', $data);
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('statusnilai'));
+        }
+    }
+    
+    public function update_action() 
+    {
+        $this->_rules();
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->update($this->input->post('id_statusnilai', TRUE));
+        } else {
+            $data = array(
+		'jenis_lelang' => $this->input->post('jenis_lelang',TRUE),
+		'estimasi' => $this->input->post('estimasi',TRUE),
+		'tkdn' => $this->input->post('tkdn',TRUE),
+		'spesifikasi' => $this->input->post('spesifikasi',TRUE),
+	    );
+
+            $this->Statusnilai_model->update($this->input->post('id_statusnilai', TRUE), $data);
+            $this->session->set_flashdata('message', 'Update Record Success');
+            redirect(site_url('statusnilai'));
+        }
+    }
+    
+    public function delete($id) 
+    {
+        $row = $this->Statusnilai_model->get_by_id($id);
+
+        if ($row) {
+            $this->Statusnilai_model->delete($id);
+            $this->session->set_flashdata('message', 'Delete Record Success');
+            redirect(site_url('statusnilai'));
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('statusnilai'));
+        }
+    }
+
+    public function _rules() 
+    {
+	$this->form_validation->set_rules('jenis_lelang', 'jenis lelang', 'trim|required');
+	$this->form_validation->set_rules('estimasi', 'estimasi', 'trim|required');
+	$this->form_validation->set_rules('tkdn', 'tkdn', 'trim|required');
+	$this->form_validation->set_rules('spesifikasi', 'spesifikasi', 'trim|required');
+
+	$this->form_validation->set_rules('id_statusnilai', 'id_statusnilai', 'trim');
+	$this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+    }
+
+}
+
+/* End of file Statusnilai.php */
+/* Location: ./application/controllers/Statusnilai.php */
+/* Please DO NOT modify this information : */
+/* Generated by Harviacode Codeigniter CRUD Generator 2017-09-25 12:43:36 */
+/* http://harviacode.com */
